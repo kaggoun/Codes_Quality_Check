@@ -4,9 +4,7 @@ import os
 from pathlib import Path
 
 
-path = '/home/kevin/PycharmProjects/pythonProject/test1/test2/test3/**/*.py'
-
-
+path = '/home/kevin/PycharmProjects/Codes_Quality_Check/**/*.py'
 
 def collect_files(path):
     """
@@ -24,81 +22,65 @@ def collect_files(path):
     list_files = []
 
     for f in glob.glob(path, recursive=True):
-        print(f)
-        print(path)
         folder_script.append(f)
         list_files.append(f.split("/")[-1])
 
-    return list_files
+    return folder_script
 
 
-print(collect_files(path))
+data=collect_files(path)
 
-# file_name = Path(f).stem
+def insert_def(data):
+    """
+       Insertion of "@Profile" if a python script contains a function
 
+       Parameters
+       ----------
+       data:list
+       path to python files
 
+       Return
+       ----------
+       Write on each python script "@Profile"
 
-list_index_def = []
+    """
+    for filename in data:
+        print(filename)
+        with open(filename, "r") as f:
+            text = f.readlines()
+            #print(text)
 
+            list_index_def = [idx for idx, i in enumerate(text) if "def" in i]
 
-# Recupere et identifie les index comportant la mention "def
+            #print(list_index_def)
 
-list_index_def = [idx for idx, i in enumerate(list) if "def" in i]
+            for j in range(0, len(list_index_def)):
+                
+                if text[0] == "\n":
+                    text.insert(j,
+                                "import line_profiler\n" + "import atexit\n" + "profile = line_profiler.LineProfiler()\n" + "atexit.register(profile.print_stats)\n")
 
-print(list_index_def)
-# Recupere et identifie les index comportant des espaces
+                    try:
+                        from line_profiler import LineProfiler
 
-list_index_space = [i - 1 for i in list_index_def]
-print(list_index_space)
-
-
-print(list_index_def)
-
-
-
-# A partir d'un fichier, insertion "@Profile" aux index identifiés dans list_index_def
-
-for j in range(0, len(list_index_def)):
-    print(j)
-
-    print(list_index_def)
-
-    with open("/home/kevin/PycharmProjects/Codes_Quality_Check/test1/test2/test3/test3.py", "rt") as filename:
-        contents = filename.readlines()
-        print(contents)
-        if contents[0] == "\n":
-            contents.insert(j, "from line_profiler import LineProfiler")
-
-            try:
-                from line_profiler import LineProfiler
-
-                lprofiler = LineProfiler()
+                        lprofiler = LineProfiler()
 
 
-            except ImportError:
+                    except ImportError:
 
-                def profile(func):
-                    return func
+                        def profile(func):
+                            return func
+
+                list_index_def_2 = [idx for idx, i in enumerate(text) if "def" in i]
+
+                #print(list_index_def_2)
+
+                text.insert(list_index_def_2[j], "@profile\n")
+        with open(filename, "w") as f:
+            text = "".join(text)
+            f.write(text)
+
+insert_def(data)
 
 
-        list_index_def_2 = [idx for idx, i in enumerate(contents) if "def" in i]
 
-        list_index_space_2= [i - 1 for i in list_index_def_2]
-
-        contents.insert(list_index_def_2[j], "@Profile\n")
-        contents.insert(list_index_space_2[j], "\n")
-
-    # A partir d'un fichier, écriture du contenu
-    with open("/home/kevin/PycharmProjects/Codes_Quality_Check/test1/test2/test3/test3.py", "w") as filename:
-        contents = "".join(contents)
-        filename.write(contents)
-
-#    os.system("python -m line_profiler "+file_name+".py.lprof")
-# list.insert(i - 1, "@Profile\n")
-
-# l=0
-# open with(list,'r') as f:
-#     lines=f.readlines()
-#     for l in lines:
-
-#         if 'def' in l:

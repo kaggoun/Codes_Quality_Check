@@ -7,9 +7,6 @@ from pathlib import Path
 
 path = '/home/kevin/PycharmProjects/Codes_Quality_Check/**/*.py'
 
-
-
-
 def collect_files(path):
     """
        collect all .py files from specified path
@@ -50,22 +47,18 @@ def insert_def(data):
 
     """
     for filename in data:
-        print(filename)
         with open(filename, "r") as f:
             text = f.readlines()
             #print(text)
 
-
             list_index_def = [idx for idx, i in enumerate(text) if "def" in i]
 
-
             #print(list_index_def)
-
 
             for j in range(0, len(list_index_def)):
 
                 if text[0] == "\n":
-                    text.insert(j, "from line_profiler import LineProfiler")
+                    text.insert(j, "import line_profiler\n"+"import atexit\n"+"profile = line_profiler.LineProfiler()\n"+"atexit.register(profile.print_stats)\n")
 
                     try:
                         from line_profiler import LineProfiler
@@ -78,18 +71,16 @@ def insert_def(data):
                         def profile(func):
                             return func
 
-
                 list_index_def_2 = [idx for idx, i in enumerate(text) if "def" in i]
-
 
                 #print(list_index_def_2)
 
-
-                text.insert(list_index_def_2[j], "@Profile\n")
+                text.insert(list_index_def_2[j], "@profile\n")
         with open(filename, "w") as f:
             text = "".join(text)
             f.write(text)
 
+    return filename
 
 insert_def(data)
 
